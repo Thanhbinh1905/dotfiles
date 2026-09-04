@@ -1,0 +1,16 @@
+.DS_Store
+
+# Home Manager renames files it takes over instead of failing.
+*.bak
+
+# Local review artifacts
+.lavish/
+
+# Never commit credentials or machine-local overrides
+*.local
+*.secret
+*.pem
+*.key
+*.token
+*.env
+!*.env.example

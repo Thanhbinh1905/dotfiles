@@ -1,0 +1,77 @@
+onboarding = false
+
+[keys]
+prefix = "ctrl+a"
+help = "prefix+?"
+reload_config = "prefix+r"
+settings = "prefix+,"
+detach = "prefix+d"
+
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+navigate_pane_left = "h"
+navigate_pane_down = "j"
+navigate_pane_up = "k"
+navigate_pane_right = "l"
+
+split_vertical = "prefix+|"
+split_horizontal = "prefix+minus"
+zoom = "prefix+z"
+close_pane = "prefix+x"
+rename_pane = "prefix+shift+r"
+last_pane = "prefix+;"
+cycle_pane_next = "prefix+tab"
+cycle_pane_previous = "prefix+shift+tab"
+
+swap_pane_left = "prefix+shift+h"
+swap_pane_down = "prefix+shift+j"
+swap_pane_up = "prefix+shift+k"
+swap_pane_right = "prefix+shift+l"
+resize_mode = "prefix+shift+s"
+
+edit_scrollback = "prefix+e"
+copy_mode = "prefix+["
+
+new_tab = "prefix+c"
+next_tab = "prefix+n"
+previous_tab = "prefix+shift+n"
+close_tab = "prefix+shift+x"
+rename_tab = "prefix+shift+t"
+
+new_workspace = "prefix+shift+c"
+next_workspace = "prefix+w"
+previous_workspace = "prefix+shift+w"
+workspace_picker = "prefix+space"
+close_workspace = "prefix+shift+q"
+rename_workspace = "prefix+shift+comma"
+
+next_agent = "prefix+a"
+previous_agent = "prefix+shift+a"
+
+toggle_sidebar = "prefix+b"
+goto = "prefix+/"
+open_notification_target = "prefix+o"
+new_worktree = "prefix+shift+o"
+open_worktree = "prefix+enter"
+remove_worktree = "prefix+backspace"
+
+[ui]
+copy_on_select = true
+confirm_close = true
+mouse_capture = true
+pane_borders = true
+pane_gaps = true
+show_agent_labels_on_pane_borders = true
+agent_panel_sort = "spaces"
+
+[theme]
+name = "nord"
+auto_switch = false
+
+[ui.sound]
+enabled = true
+
+[ui.toast]
+delivery = "system"
