@@ -6,13 +6,30 @@ let
   link = path: config.lib.file.mkOutOfStoreSymlink "${dotfiles}/${path}";
 
   userThemeExtension = "user-theme@gnome-shell-extensions.gcampax.github.com";
+  # Lotus's Ubuntu + GNOME + X11 guide requires these session variables.
+  inputMethodSessionVariables = {
+    GLFW_IM_MODULE = "ibus";
+    GTK_IM_MODULE = "fcitx";
+    QT_IM_MODULE = "fcitx";
+    SDL_IM_MODULE = "fcitx";
+    XMODIFIERS = "@im=fcitx";
+  };
+
+  # WhiteSur detects the Shell version while building. The Nix sandbox has no
+  # gnome-shell binary, so upstream otherwise falls back to GNOME 48 CSS.
+  gnomeShellForWhiteSur = pkgs.writeShellScriptBin "gnome-shell" ''
+    echo "GNOME Shell 46.0"
+  '';
+  whiteSurGtkTheme = pkgs.whitesur-gtk-theme.overrideAttrs (old: {
+    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ gnomeShellForWhiteSur ];
+  });
 
   whiteSurTheme = pkgs.runCommand "workspace-whitesur-dark-solid" { } ''
     mkdir -p "$out"
     # WhiteSur-Dark-solid contains relative links to shared WhiteSur-Dark
     # assets. Dereference them so the standalone theme does not contain
     # links to files outside its own Nix store output.
-    cp -RL ${pkgs.whitesur-gtk-theme}/share/themes/WhiteSur-Dark-solid/. "$out/"
+    cp -RL ${whiteSurGtkTheme}/share/themes/WhiteSur-Dark-solid/. "$out/"
     chmod -R u+w "$out"
     cat >> "$out/gnome-shell/gnome-shell.css" <<'CSS'
 
@@ -63,8 +80,6 @@ in
     glab
     go
     herdr
-    ibus
-    ibus-engines.bamboo
     jq
     kubectl
     lazygit
@@ -82,6 +97,19 @@ in
 
   fonts.fontconfig.enable = true;
 
+  i18n.inputMethod = {
+    enable = true;
+    type = "fcitx5";
+    fcitx5 = {
+      addons = [ pkgs.fcitx5-lotus ];
+      sessionVariables = inputMethodSessionVariables;
+    };
+  };
+
+  # GDM reads environment.d at login; shells source the same values from
+  # hm-session-vars.sh. The explicit systemd copy also reaches GUI applications.
+  systemd.user.sessionVariables = inputMethodSessionVariables;
+
   programs.git = {
     enable = true;
     settings.user.name = "Thanhbinh1905";
@@ -93,6 +121,7 @@ in
   # effect immediately, with no rebuild.
   home.file = {
     ".zshrc".source = link "home/.zshrc";
+    ".xinputrc".source = link "home/.xinputrc";
 
     # One global policy, read by all three agents. ~/.claude/CLAUDE.md cannot use
     # Claude's "@AGENTS.md" import here: that resolves to ~/.claude/AGENTS.md,
@@ -106,6 +135,7 @@ in
     ".pi/agent/AGENTS.md".source = link "home/AGENTS.md";
     ".pi/agent/settings.json".source = link "home/.pi/agent/settings.json";
 
+    ".config/fcitx5/profile".source = link "home/.config/fcitx5/profile";
     ".config/ghostty/config".source = link "home/.config/ghostty/config";
     ".config/herdr/config.toml".source = link "home/.config/herdr/config.toml";
     ".config/nvim".source = link "home/.config/nvim";
@@ -121,7 +151,7 @@ in
       org.freedesktop.impl.portal.Secret=gnome-keyring;
     '';
 
-    # Appearance and input method: pinned to the store, not editable in place.
+    # Appearance assets are pinned to the store, not editable in place.
     ".oh-my-zsh".source = ohMyZsh;
 
     ".themes/WhiteSur-Dark-solid".source = whiteSurTheme;
@@ -129,14 +159,7 @@ in
       "${pkgs.whitesur-icon-theme}/share/icons/WhiteSur";
     ".local/share/icons/WhiteSur-cursors".source =
       "${pkgs.whitesur-cursors}/share/icons/WhiteSur-cursors";
-    ".local/share/ibus/component/bamboo.xml".source =
-      "${pkgs.ibus-engines.bamboo}/share/ibus/component/bamboo.xml";
-    ".local/share/ibus-bamboo".source =
-      "${pkgs.ibus-engines.bamboo}/share/ibus-bamboo";
   };
-
-  home.sessionVariables.IBUS_COMPONENT_PATH =
-    "${config.home.homeDirectory}/.local/share/ibus/component:/usr/share/ibus/component";
 
   dconf.settings = import ./appearance.nix { hmLib = lib.hm; };
 

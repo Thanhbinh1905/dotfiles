@@ -1,0 +1,3 @@
+# Fcitx5 is started by the Home Manager systemd user service.
+# Disable Ubuntu's im-config autostart so it does not launch IBus alongside it.
+run_im none

@@ -30,9 +30,9 @@ moved something - without building a generation:
 
 **Pinned in Nix** - appearance and input method, so a fresh machine looks
 identical: WhiteSur dark theme, icons and cursors, the GNOME User Themes
-extension, dash-to-dock geometry, dark colour scheme, ibus-bamboo for Vietnamese
-input, and oh-my-zsh with the dracula prompt. Changing any of it means editing
-`home.nix` or `appearance.nix` and re-running `./bootstrap.sh`.
+extension, dash-to-dock geometry, dark colour scheme, Fcitx5 Lotus for
+Vietnamese input, and oh-my-zsh with the dracula prompt. Changing any of it means
+editing `home.nix` or `appearance.nix` and re-running `./bootstrap.sh`.
 
 `appearance.nix` holds every `dconf` key exactly once. `home.nix` feeds it to
 `dconf.settings`, and `flake.nix` renders the same attrset into the standalone
@@ -44,8 +44,15 @@ through `~/.dotfiles` with `mkOutOfStoreSymlink`. The file in this repo *is* the
 live config: edit `home/.zshrc` or `home/.config/nvim/` and the change is
 already in effect. No rebuild.
 
-Managed this way: zsh, ghostty, neovim, herdr, VS Code `settings.json`, and the
-agent settings for Claude and Pi.
+Managed this way: zsh, Fcitx5's input-method profile, ghostty, neovim, herdr,
+VS Code `settings.json`, and the agent settings for Claude and Pi.
+
+### Lotus host integration
+
+Home Manager installs and starts Fcitx5 Lotus. Ubuntu still needs distro-native
+GTK/Qt frontend modules and the system-level Lotus uinput server. Follow
+[`docs/lotus-installation.md`](docs/lotus-installation.md) once per machine, then
+log out and back in.
 
 ### The global agent policy
 

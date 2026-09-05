@@ -17,17 +17,10 @@
     icon-theme = "WhiteSur";
   };
 
+  # Fcitx5 owns the Vietnamese input method. GNOME only needs the US layout.
   "org/gnome/desktop/input-sources".sources = map hmLib.gvariant.mkTuple [
     [ "xkb" "us" ]
-    [ "ibus" "Bamboo" ]
   ];
-
-  "desktop/ibus/general" = {
-    enable-by-default = false;
-    engines-order = [ "Bamboo" ];
-    preload-engines = [ "Bamboo" ];
-    use-global-engine = true;
-  };
 
   "org/gnome/shell/extensions/dash-to-dock" = {
     always-center-icons = true;

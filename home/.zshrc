@@ -4,6 +4,24 @@ plugins=(git zsh-autosuggestions)
 
 fpath=("$HOME/.zsh/completions" $fpath)
 
+# A persistent Herdr server can outlive the graphical login and give new panes
+# stale environment variables. Recover the current graphical session.
+if [[ -n "${HERDR_ENV:-}" ]] && command -v systemctl >/dev/null 2>&1; then
+  while IFS='=' read -r key value; do
+    case "$key" in
+      DESKTOP_SESSION | DISPLAY | GDMSESSION | GNOME_DESKTOP_SESSION_ID | \
+        SSH_AUTH_SOCK | WAYLAND_DISPLAY | XAUTHORITY | XDG_CURRENT_DESKTOP | \
+        XDG_SESSION_DESKTOP | XDG_SESSION_TYPE)
+        [[ -n "$value" ]] && export "$key=$value"
+        ;;
+    esac
+  done < <(systemctl --user show-environment 2>/dev/null)
+fi
+
+if [[ -r "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]]; then
+  source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+fi
+
 if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
   source "$ZSH/oh-my-zsh.sh"
 fi
@@ -44,3 +62,4 @@ fi
 rehash
 
 alias pvent='source .venv/bin/activate'
+alias cc='claude --dangerously-skip-permissions'

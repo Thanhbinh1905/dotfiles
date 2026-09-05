@@ -2,7 +2,7 @@
 
 Home Manager flake for one Linux workstation. Two things are managed, nothing else:
 
-- **Appearance and input method**, pinned in Nix: WhiteSur GTK/icon/cursor theme, GNOME `dconf` keys, dash-to-dock, ibus-bamboo, oh-my-zsh with the vendored dracula prompt. The `dconf` keys live in `appearance.nix`; everything else in `home.nix`.
+- **Appearance and input method**, pinned in Nix: WhiteSur GTK/icon/cursor theme, GNOME `dconf` keys, dash-to-dock, Fcitx5 Lotus, oh-my-zsh with the vendored dracula prompt. The `dconf` keys live in `appearance.nix`; everything else in `home.nix`.
 - **Config files**, symlinked out of the Nix store with `mkOutOfStoreSymlink` through `~/.dotfiles`. Editing a file under `home/` takes effect immediately; no rebuild.
 
 ## Rules
@@ -15,7 +15,7 @@ Home Manager flake for one Linux workstation. Two things are managed, nothing el
 - One global agent policy: `home/AGENTS.md`, linked to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` and `~/.pi/agent/AGENTS.md`. Keep it project-agnostic. Do not use Claude's `@AGENTS.md` import for it - inside `~/.claude/CLAUDE.md` that resolves to `~/.claude/AGENTS.md`, which nothing creates.
 - Do not link a file the app writes trust decisions or credentials into. `~/.codex/config.toml` is the case in point: codex stores project `trust_level` entries, `[mcp_servers]` and hook hashes there, so linking it both wipes them on switch and would commit a machine-specific trust list. It stays unmanaged.
 - Linking a file the app merely writes preferences back into is fine: the write lands in the repo as a reviewable diff. That is the deal for `~/.claude/settings.json` and `~/.pi/agent/settings.json`.
-- ibus-bamboo's own config, agent credentials, sessions and caches stay unmanaged.
+- Fcitx5 Lotus's writable config, agent credentials, sessions and caches stay unmanaged. Only the input-method profile is linked from `home/`.
 - Activation must not hard-fail on an absent desktop session. Report and continue.
 - Never commit credentials, tokens, account databases, runtime state, or package caches.
 - Never manually modify generated lockfiles or generated changelogs. Update them only through their owning tool.
