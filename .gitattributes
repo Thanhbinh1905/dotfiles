@@ -1,3 +1,3 @@
-# Application-owned runtime state is normalized before Git compares it.
-home/.pi/agent/settings.json filter=dotfiles-pi-runtime
-home/.config/fcitx5/profile filter=dotfiles-fcitx-runtime
+# pi records the changelog version it has shown into its own settings file.
+# Git compares the file without that field so the write never becomes a commit.
+home/.pi/agent/settings.json filter=pi-runtime-state
