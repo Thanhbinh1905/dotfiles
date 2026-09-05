@@ -1,0 +1,3 @@
+# Application-owned runtime state is normalized before Git compares it.
+home/.pi/agent/settings.json filter=dotfiles-pi-runtime
+home/.config/fcitx5/profile filter=dotfiles-fcitx-runtime

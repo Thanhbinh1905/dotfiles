@@ -29,6 +29,19 @@ esac
 command -v nix >/dev/null || { echo "nix is required" >&2; exit 1; }
 export NIX_CONFIG="${NIX_CONFIG:+$NIX_CONFIG$'\n'}experimental-features = nix-command flakes"
 
+# These files stay writable because their applications persist runtime state in
+# them. Git compares their normalized content so that state does not become a
+# commit, while deliberate configuration changes remain visible.
+configure_runtime_filters() {
+  local filter_script="$repo_dir/scripts/normalize-runtime-config.py"
+  git -C "$repo_dir" config --local filter.dotfiles-pi-runtime.clean \
+    "$filter_script pi-settings"
+  git -C "$repo_dir" config --local filter.dotfiles-pi-runtime.smudge cat
+  git -C "$repo_dir" config --local filter.dotfiles-fcitx-runtime.clean \
+    "$filter_script fcitx-profile"
+  git -C "$repo_dir" config --local filter.dotfiles-fcitx-runtime.smudge cat
+}
+
 # flake.nix is the single source of truth for who this config is for.
 username="$(sed -nE 's/^[[:space:]]*username = "([^"]+)";.*/\1/p' "$repo_dir/flake.nix" | head -n1)"
 [[ -n "$username" ]] || { echo "Could not read 'username = ' from flake.nix" >&2; exit 1; }
@@ -36,6 +49,12 @@ username="$(sed -nE 's/^[[:space:]]*username = "([^"]+)";.*/\1/p' "$repo_dir/fla
   echo "flake.nix is configured for $username, but you are $(id -un)" >&2
   exit 1
 }
+
+# --check must be side-effect free. Other modes prepare the local Git filters
+# before a generation or appearance update can leave application state behind.
+if [[ -z "${check_only:-}" ]]; then
+  configure_runtime_filters
+fi
 
 if [[ -n "${appearance_only:-}" ]]; then
   exec nix run "$repo_dir#appearance"

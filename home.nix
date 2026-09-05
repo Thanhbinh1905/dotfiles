@@ -133,6 +133,7 @@ in
     ".codex/AGENTS.md".source = link "home/AGENTS.md";
 
     ".pi/agent/AGENTS.md".source = link "home/AGENTS.md";
+    ".pi/agent/models.json".source = link "home/.pi/agent/models.json";
     ".pi/agent/settings.json".source = link "home/.pi/agent/settings.json";
 
     ".config/fcitx5/profile".source = link "home/.config/fcitx5/profile";

@@ -1,0 +1,14 @@
+{
+  "providers": {
+    "openai": {
+      "baseUrl": "http://127.0.0.1:8317/v1",
+      "apiKey": "$CLIPROXYAPI_API_KEY",
+      // cliproxyapi forwards to chatgpt.com/backend-api/codex, which rejects
+      // `prompt_cache_options` with a 400. pi only sends that field when cache
+      // retention is "none" - exactly what compaction/summarization uses.
+      "compat": {
+        "supportsExplicitPromptCacheMode": false
+      }
+    }
+  }
+}

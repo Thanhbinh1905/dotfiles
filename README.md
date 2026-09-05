@@ -45,7 +45,20 @@ live config: edit `home/.zshrc` or `home/.config/nvim/` and the change is
 already in effect. No rebuild.
 
 Managed this way: zsh, Fcitx5's input-method profile, ghostty, neovim, herdr,
-VS Code `settings.json`, and the agent settings for Claude and Pi.
+VS Code `settings.json`, and the agent settings for Claude and Pi. Pi's
+OpenAI-compatible provider override is in `home/.pi/agent/models.json`; it
+routes through the local cliproxyapi endpoint and disables the unsupported
+explicit prompt-cache mode. The API key is read from the machine-local
+`CLIPROXYAPI_API_KEY` environment variable and is never stored in this repo.
+Set that variable in the shell or local environment file that launches Pi.
+
+### Application-owned runtime state
+
+Pi records the latest changelog it displayed, and Fcitx5 may append a blank
+line when rewriting its profile. The tracked files remain the live symlink
+targets, but `./bootstrap.sh` installs local Git clean filters that remove only
+those generated changes before comparison. Deliberate configuration edits stay
+visible in `git status`.
 
 ### Lotus host integration
 
@@ -80,7 +93,9 @@ machine. Linking it means every switch replaces that state with whatever the
 repo happens to hold, and it would put a machine-specific trust list into git.
 Codex owns that file. `~/.claude/settings.json` and `~/.pi/agent/settings.json`
 are linked despite also being written back to, because what they write is
-preferences rather than trust decisions, and it arrives as a diff you can read.
+preferences rather than trust decisions. Git filters hide only the known
+application-generated runtime fields; deliberate preference changes remain
+reviewable.
 
 `~/.config/opencode/AGENTS.md` is left alone too. Tools such as CodeGraph and
 nodeterm inject marked blocks into it, and linking it would both write those
@@ -94,7 +109,7 @@ Nix store is read-only. They live under nvm, and `home/.zshrc` orders PATH so
 nvm wins over the Nix profile. VS Code is installed by hand; only its
 `settings.json` is linked.
 
-Also unmanaged: anything an application writes back to its own config, plus all
+Also unmanaged: application-owned runtime files not listed above, plus all
 credentials, sessions and caches.
 
 ## Layout
@@ -106,4 +121,5 @@ credentials, sessions and caches.
 | `appearance.nix` | Every `dconf` key, once. Read by `home.nix` and by `--appearance`. |
 | `bootstrap.sh` | Links `~/.dotfiles`, then switches. |
 | `home/` | The real config files, symlinked into place. |
+| `scripts/normalize-runtime-config.py` | Git clean-filter normalizer for application-owned runtime state. |
 | `AGENTS.md` | Agent policy for working on this repo. |
