@@ -14,12 +14,20 @@ Home Manager flake for one Linux workstation. Two things are managed, nothing el
   `diff <(rendered keyfile from packages.appearance) <(the generation's hm-dconf.ini)` - they must be byte-identical.
 - One global agent policy: `home/AGENTS.md`, linked to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` and `~/.pi/agent/AGENTS.md`. Keep it project-agnostic. Do not use Claude's `@AGENTS.md` import for it - inside `~/.claude/CLAUDE.md` that resolves to `~/.claude/AGENTS.md`, which nothing creates.
 - Do not link a file the app writes trust decisions or credentials into. `~/.codex/config.toml` is the case in point: codex stores project `trust_level` entries, `[mcp_servers]` and hook hashes there, so linking it both wipes them on switch and would commit a machine-specific trust list. It stays unmanaged.
-- Linking a file the app merely writes preferences back into is fine: the write lands in the repo as a reviewable diff. That is the deal for `~/.claude/settings.json` and `~/.pi/agent/settings.json`.
+- Linking a file the app merely writes preferences back into is fine. Absorb that write by committing the file exactly as the app serializes it - Fcitx5's profile ends with a blank line - and only where the value itself keeps changing by a Git clean filter that drops that one field. `scripts/normalize-pi-settings.py` is the only such filter; deliberate preference edits must stay reviewable.
+- This repository is public. A managed file that needs a secret references it, never contains it: `home/.pi/agent/models.json` resolves the cliproxyapi key at runtime with pi's `!command` syntax from `~/.pi/agent/cliproxyapi.local`, which `bootstrap.sh` seeds. Verify any such mechanism by running the application, not by reasoning about it.
 - Fcitx5 Lotus's writable config, agent credentials, sessions and caches stay unmanaged. Only the input-method profile is linked from `home/`.
 - Activation must not hard-fail on an absent desktop session. Report and continue.
 - Never commit credentials, tokens, account databases, runtime state, or package caches.
 - Never manually modify generated lockfiles or generated changelogs. Update them only through their owning tool.
 - Never use em dash punctuation. Use a plain hyphen instead.
+
+## Maintaining this file
+
+Keep this file for knowledge useful to almost every future agent session in this project.
+Do not repeat what the codebase already shows; point to the authoritative file or command instead.
+Prefer rewriting or pruning existing entries over appending new ones.
+When updating this file, preserve this bar for all agents and keep entries concise.
 
 ## Commands
 

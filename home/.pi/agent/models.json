@@ -1,0 +1,18 @@
+{
+  "providers": {
+    "openai": {
+      "baseUrl": "http://127.0.0.1:8317/v1",
+      // The proxy credential never lives in this repo. bootstrap.sh seeds
+      // ~/.pi/agent/cliproxyapi.local (mode 0600) from the machine's existing
+      // key; pi reads it on demand. A missing or empty file makes pi fail with
+      // "Failed to resolve API key ... from shell command", naming this path.
+      "apiKey": "!cat \"$HOME/.pi/agent/cliproxyapi.local\"",
+      // cliproxyapi forwards to chatgpt.com/backend-api/codex, which rejects
+      // `prompt_cache_options` with a 400. pi only sends that field when cache
+      // retention is "none" - exactly what compaction/summarization uses.
+      "compat": {
+        "supportsExplicitPromptCacheMode": false
+      }
+    }
+  }
+}

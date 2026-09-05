@@ -47,6 +47,44 @@ already in effect. No rebuild.
 Managed this way: zsh, Fcitx5's input-method profile, ghostty, neovim, herdr,
 VS Code `settings.json`, and the agent settings for Claude and Pi.
 
+### Pi's proxy provider
+
+`home/.pi/agent/models.json` overrides Pi's `openai` provider: it routes through
+the local cliproxyapi endpoint and turns off the explicit prompt-cache mode that
+endpoint rejects, which is what makes compaction and summarization work through
+the proxy. Pi reads only `models.json`; a `models.jsonc` next to it is ignored.
+
+The proxy key is not in this repo and must never be - the repo is public. The
+managed file resolves it at runtime with Pi's documented `!command` syntax, from
+`~/.pi/agent/cliproxyapi.local` (mode `0600`, never copied into the Nix store).
+`./bootstrap.sh` creates that file once, from the literal key in the
+`~/.pi/agent/models.json` it is about to replace, so a machine that already
+works keeps working. A machine with no key anywhere gets a warning naming the
+file, the rest of the switch still runs, and Pi then fails loudly with
+`Failed to resolve API key for provider "openai" from shell command: cat ...`
+rather than going quietly unauthenticated. Writing the key into that file is the
+only manual step, and only on a machine that has never had one.
+
+### Application-owned runtime state
+
+Two managed files are also written by their own applications, through the
+symlink and straight into this working tree.
+
+Fcitx5 rewrites `home/.config/fcitx5/profile` in its own serialization, which
+ends with a blank line. The file is committed exactly that way, so a rewrite is
+byte-identical and there is nothing to absorb.
+
+Pi records the changelog version it has shown into `home/.pi/agent/settings.json`.
+That value changes with every Pi release, so `./bootstrap.sh` installs a local
+Git clean filter (`scripts/normalize-pi-settings.py`) that drops the field before
+Git compares the file. `git diff` is empty and there is never anything to commit;
+`git status` marks the path until the next `git add`, which stages nothing.
+Deliberate preference edits still show up as ordinary diffs. The filter is
+registered `required`, so if the script ever goes missing Git refuses the
+operation instead of quietly letting the churn back in. It lives in
+`.git/config`, so a fresh clone has it only after the first `./bootstrap.sh`;
+`./bootstrap.sh --check` stays side-effect free and installs nothing.
+
 ### Lotus host integration
 
 Home Manager installs and starts Fcitx5 Lotus. Ubuntu still needs distro-native
@@ -80,7 +118,9 @@ machine. Linking it means every switch replaces that state with whatever the
 repo happens to hold, and it would put a machine-specific trust list into git.
 Codex owns that file. `~/.claude/settings.json` and `~/.pi/agent/settings.json`
 are linked despite also being written back to, because what they write is
-preferences rather than trust decisions, and it arrives as a diff you can read.
+preferences rather than trust decisions. Git filters hide only the known
+application-generated runtime fields; deliberate preference changes remain
+reviewable.
 
 `~/.config/opencode/AGENTS.md` is left alone too. Tools such as CodeGraph and
 nodeterm inject marked blocks into it, and linking it would both write those
@@ -94,7 +134,7 @@ Nix store is read-only. They live under nvm, and `home/.zshrc` orders PATH so
 nvm wins over the Nix profile. VS Code is installed by hand; only its
 `settings.json` is linked.
 
-Also unmanaged: anything an application writes back to its own config, plus all
+Also unmanaged: application-owned runtime files not listed above, plus all
 credentials, sessions and caches.
 
 ## Layout
@@ -106,4 +146,5 @@ credentials, sessions and caches.
 | `appearance.nix` | Every `dconf` key, once. Read by `home.nix` and by `--appearance`. |
 | `bootstrap.sh` | Links `~/.dotfiles`, then switches. |
 | `home/` | The real config files, symlinked into place. |
+| `scripts/normalize-pi-settings.py` | Git clean filter that drops Pi's changelog bookkeeping. |
 | `AGENTS.md` | Agent policy for working on this repo. |
