@@ -110,6 +110,7 @@ in
       python3Packages.pip
       ripgrep
       rustc
+      topgrade
       tmux
       unzip
     ]
@@ -175,6 +176,7 @@ in
     }
     // lib.optionalAttrs features.developerTools {
       ".config/nvim".source = link "home/.config/nvim";
+      ".config/topgrade.toml".source = link "home/.config/topgrade.toml";
     }
     // lib.optionalAttrs features.gui {
       ".config/Code/User/settings.json".source = link "home/.config/Code/User/settings.json";

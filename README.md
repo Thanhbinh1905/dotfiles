@@ -85,6 +85,26 @@ operation instead of quietly letting the churn back in. It lives in
 `.git/config`, so a fresh clone has it only after the first `./bootstrap.sh`;
 `./bootstrap.sh --check` stays side-effect free and installs nothing.
 
+### Topgrade
+
+Topgrade is installed by Nix and its configuration is linked from
+`home/.config/topgrade.toml`. It updates Nix, Home Manager, the distribution's
+system package manager, and the configured repositories at
+`/home/thanhbinh/firstmate` and `/home/thanhbinh/data/Personal`.
+
+The npm step is deliberately excluded. It would update the nvm globals that
+provide Claude, Codex, Pi, and the `-axi` tools, and an unattended breaking
+update could interrupt work in flight. Remove the `node` entry from `disable`
+in `home/.config/topgrade.toml` deliberately when you want Topgrade to manage
+them.
+
+Check what would run, then run the updates:
+
+```sh
+topgrade --dry-run
+topgrade
+```
+
 ### Lotus host integration
 
 Home Manager installs and starts Fcitx5 Lotus. Ubuntu still needs distro-native
