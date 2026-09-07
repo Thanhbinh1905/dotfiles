@@ -14,6 +14,13 @@
 - Apply that same high standard to engineering excellence: lint, test failures, and test flakiness. If you see one, even if it is not caused by what you are working on right now, still get it fixed.
 - Before using "dynamic workflows", "ultra code" or any harness feature that immediately spawns a large swarm of subagents, always explain the tradeoffs and ask the user for explicit approval.
 
+## Language
+
+- Reply in English by default.
+- Use the vocabulary practising engineers actually use; keep technical terms instead of simplifying or paraphrasing them.
+- On first use of a deep or unusual technical term, add a short English-to-English explanation in parentheses.
+- Treat a switch to Vietnamese as a signal that he did not understand something: answer that point, then return to English.
+
 ## Maintaining this file
 
 This is the global policy. Claude, Codex and Pi all read this one file through a symlink,
