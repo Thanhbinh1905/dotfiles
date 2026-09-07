@@ -1,9 +1,41 @@
 # Workspace setup repository
 
-Home Manager flake for one Linux workstation. Two things are managed, nothing else:
+Home Manager flake for one Linux workstation. The `features` set near the top
+of `home.nix` selects its optional pieces; every feature defaults to `true` so
+the default evaluates to the current workstation:
 
-- **Appearance and input method**, pinned in Nix: WhiteSur GTK/icon/cursor theme, GNOME `dconf` keys, dash-to-dock, Fcitx5 Lotus, oh-my-zsh with the vendored dracula prompt. The `dconf` keys live in `appearance.nix`; everything else in `home.nix`.
-- **Config files**, symlinked out of the Nix store with `mkOutOfStoreSymlink` through `~/.dotfiles`. Editing a file under `home/` takes effect immediately; no rebuild.
+- **Appearance**, pinned in Nix: WhiteSur GTK/icon/cursor theme, GNOME `dconf`
+  keys, dash-to-dock, fonts, desktop portals, VS Code settings, and the User
+  Themes activation.
+- **Vietnamese input**, pinned in Nix: Fcitx5 Lotus, its session variables, and
+  the linked Fcitx5 configuration.
+- **Config files**, symlinked out of the Nix store with `mkOutOfStoreSymlink`
+  through `~/.dotfiles`. Editing a file under `home/` takes effect immediately;
+  no rebuild.
+
+## Optional pieces
+
+`home.nix` is the single selection point. Each feature controls its packages and
+linked files:
+
+- `gui`: the Appearance piece above.
+- `inputMethod`: Vietnamese input and `.xinputrc`.
+- `ghostty`: the Ghostty package and config.
+- `herdr`: the Herdr package and config.
+- `shell`: zsh, the vendored dracula oh-my-zsh bundle, and `.zshrc`.
+- `agentConfigs`: Claude, Codex, and pi policies and settings. Agent CLIs stay
+  outside Nix.
+- `developerTools`: cargo, curl, Docker, fd, fzf, GitHub and GitLab CLIs, Go,
+  jq, kubectl, lazygit, Neovim, pyenv, Python and pip, ripgrep, Rust, tmux,
+  unzip, Git config, and Neovim config.
+
+`home/.config/nix/nix.conf` is always linked because it enables flakes and
+`nix-command`.
+
+Set a feature to `false`, run `./bootstrap.sh --check`, then apply with
+`./bootstrap.sh`. For only the GUI layer, leave `gui = true` and turn the other
+features off. For a headless setup, set `gui = false` and disable any desktop
+features you do not need.
 
 ## Rules
 
@@ -16,7 +48,7 @@ Home Manager flake for one Linux workstation. Two things are managed, nothing el
 - Do not link a file the app writes trust decisions or credentials into. `~/.codex/config.toml` is the case in point: codex stores project `trust_level` entries, `[mcp_servers]` and hook hashes there, so linking it both wipes them on switch and would commit a machine-specific trust list. It stays unmanaged.
 - Linking a file the app merely writes preferences back into is fine. Absorb that write by committing the file exactly as the app serializes it - Fcitx5's profile ends with a blank line - and only where the value itself keeps changing by a Git clean filter that drops that one field. `scripts/normalize-pi-settings.py` is the only such filter; deliberate preference edits must stay reviewable.
 - This repository is public. A managed file that needs a secret references it, never contains it: `home/.pi/agent/models.json` resolves the cliproxyapi key at runtime with pi's `!command` syntax from `~/.pi/agent/cliproxyapi.local`, which `bootstrap.sh` seeds. Verify any such mechanism by running the application, not by reasoning about it.
-- Fcitx5 Lotus's writable config, agent credentials, sessions and caches stay unmanaged. Only the input-method profile is linked from `home/`.
+- Fcitx5 Lotus's user configuration and profile are linked from `home/` so input-method choices stay reviewable. Agent credentials, sessions and caches stay unmanaged because they contain secrets or runtime state.
 - Activation must not hard-fail on an absent desktop session. Report and continue.
 - Never commit credentials, tokens, account databases, runtime state, or package caches.
 - Never manually modify generated lockfiles or generated changelogs. Update them only through their owning tool.
