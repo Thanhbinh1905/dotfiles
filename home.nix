@@ -138,6 +138,7 @@ in
 
     ".config/fcitx5/config".source = link "home/.config/fcitx5/config";
     ".config/fcitx5/profile".source = link "home/.config/fcitx5/profile";
+    ".config/fcitx5/conf/lotus.conf".source = link "home/.config/fcitx5/conf/lotus.conf";
     ".config/ghostty/config".source = link "home/.config/ghostty/config";
     ".config/herdr/config.toml".source = link "home/.config/herdr/config.toml";
     ".config/nvim".source = link "home/.config/nvim";
