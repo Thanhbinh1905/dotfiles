@@ -22,6 +22,12 @@
     [ "xkb" "us" ]
   ];
 
+  # Leave Super+space and Shift+Super+space for Fcitx5.
+  "org/gnome/desktop/wm/keybindings" = {
+    switch-input-source = [ ];
+    switch-input-source-backward = [ ];
+  };
+
   "org/gnome/shell/extensions/dash-to-dock" = {
     always-center-icons = true;
     apply-custom-theme = false;

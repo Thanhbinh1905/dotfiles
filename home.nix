@@ -136,6 +136,7 @@ in
     ".pi/agent/models.json".source = link "home/.pi/agent/models.json";
     ".pi/agent/settings.json".source = link "home/.pi/agent/settings.json";
 
+    ".config/fcitx5/config".source = link "home/.config/fcitx5/config";
     ".config/fcitx5/profile".source = link "home/.config/fcitx5/profile";
     ".config/ghostty/config".source = link "home/.config/ghostty/config";
     ".config/herdr/config.toml".source = link "home/.config/herdr/config.toml";
