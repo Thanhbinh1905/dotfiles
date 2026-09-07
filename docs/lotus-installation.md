@@ -74,6 +74,14 @@ Vietnamese typing with its underline without editing the repository or rerunning
 Home Manager. For a permanent fallback, set `Mode=Preedit` in
 `home/.config/fcitx5/conf/lotus.conf`.
 
+Per-application modes are managed in
+`home/.config/fcitx5/conf/lotus-app-rules.conf`. Its mode numbers are `0` Off,
+`1` Uinput (Smooth), `2` Uinput (Slow), `3` Uinput (Hardcore), `4` Surrounding
+Text, `5` Preedit, and `6` Emoji Picker. Add another application as
+`program-name=mode`, using the program name Lotus reports, then run
+`./bootstrap.sh` to apply it. The current browser rules use `brave=5` and
+`chrome=5`.
+
 Preedit composes text in a temporary buffer, so its standard rendering shows an
 underline until the text is committed. The uinput modes synthesize real key
 events (backspace plus the accented character), committing text directly
