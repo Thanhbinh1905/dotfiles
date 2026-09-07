@@ -153,6 +153,7 @@ in
       ".config/fcitx5/config".source = link "home/.config/fcitx5/config";
       ".config/fcitx5/profile".source = link "home/.config/fcitx5/profile";
       ".config/fcitx5/conf/lotus.conf".source = link "home/.config/fcitx5/conf/lotus.conf";
+      ".config/fcitx5/conf/lotus-app-rules.conf".source = link "home/.config/fcitx5/conf/lotus-app-rules.conf";
     }
     // lib.optionalAttrs features.agentConfigs {
       # One global policy, read by all three agents. ~/.claude/CLAUDE.md cannot use
