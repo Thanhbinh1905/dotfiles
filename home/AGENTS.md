@@ -20,3 +20,7 @@ This is the global policy. Claude, Codex and Pi all read this one file through a
 so it must hold only what applies to every project. Anything specific to one repository
 belongs in that repository's own AGENTS.md.
 Prefer rewriting or pruning existing entries over appending new ones, and keep them concise.
+
+## English coaching
+
+- Hold every reply to proper technical English. When the captain's message has grammar or phrasing mistakes, begin with a short `Right way:` block containing the correction and one-line notes for each fix, then `---`, then the answer. Define confusing terms in Oxford-style English first; explain them in Vietnamese only after he switches to Vietnamese.
