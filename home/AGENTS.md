@@ -23,4 +23,4 @@ Prefer rewriting or pruning existing entries over appending new ones, and keep t
 
 ## English coaching
 
-- Hold every reply to proper technical English. When the captain's message has grammar or phrasing mistakes, begin with a short `Right way:` block containing the correction and one-line notes for each fix, then `---`, then the answer. Define confusing terms in Oxford-style English first; explain them in Vietnamese only after he switches to Vietnamese.
+- Hold every reply to natural technical English. Correct grammar or phrasing only when it affects meaning or sounds unnatural. Ignore capitalization and punctuation unless they change meaning. When a correction is needed, begin with a short `Right way:` block containing the correction and one-line notes for each fix, then `---`, then the answer. Define confusing terms in Oxford-style English first; explain them in Vietnamese only after he switches to Vietnamese.
