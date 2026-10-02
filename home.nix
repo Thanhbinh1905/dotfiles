@@ -27,21 +27,78 @@ let
     XMODIFIERS = "@im=fcitx";
   };
 
-  # WhiteSur detects the Shell version while building. The Nix sandbox has no
-  # gnome-shell binary, so upstream otherwise falls back to GNOME 48 CSS.
-  gnomeShellForWhiteSur = pkgs.writeShellScriptBin "gnome-shell" ''
-    echo "GNOME Shell 46.0"
+  # MacTahoe detects the Shell version while building. The Nix sandbox has no
+  # gnome-shell binary, so report the host version explicitly.
+  gnomeShellForMacTahoe = pkgs.writeShellScriptBin "gnome-shell" ''
+    echo "GNOME Shell 50.1"
   '';
-  whiteSurGtkTheme = pkgs.whitesur-gtk-theme.overrideAttrs (old: {
-    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ gnomeShellForWhiteSur ];
-  });
+  macTahoeSrc = pkgs.fetchFromGitHub {
+    owner = "vinceliuice";
+    repo = "MacTahoe-gtk-theme";
+    rev = "2026-09-10";
+    hash = "sha256-P4zevOTHd7KKLj3a9wkaY96tMFMg7iZEpz3NkbdyTwM=";
+  };
+  macTahoeGtkTheme = pkgs.stdenv.mkDerivation {
+    pname = "mactahoe-gtk-theme";
+    version = "2026-09-10";
+    src = macTahoeSrc;
+    nativeBuildInputs = with pkgs; [
+      dialog
+      glib
+      jdupes
+      libxml2
+      sassc
+      util-linux
+      gnomeShellForMacTahoe
+    ];
+    buildInputs = [ pkgs.gnome-themes-extra ];
+    postPatch = ''
+      find -name "*.sh" -print0 | while IFS= read -r -d ''' file; do
+        patchShebangs "$file"
+      done
+      # MacTahoe looks up the user home via getent, which has no entry for
+      # the sandbox user. Point it at /tmp instead.
+      substituteInPlace libs/lib-core.sh \
+        --replace-fail 'MY_HOME=$(getent passwd "''${MY_USERNAME}" | cut -d: -f6)' 'MY_HOME=/tmp'
+      # The sandbox has no sudo: `command -v sudo` fails, and with
+      # `set -e` that kills the script while sourcing lib-core.sh, before
+      # any output. Our invocations never need sudo (theme goes to $out,
+      # libadwaita to $HOME), so neuter the lookup like nixpkgs does.
+      substituteInPlace libs/lib-core.sh \
+        --replace-fail 'SUDO_BIN="$(command -v sudo)"' 'SUDO_BIN="false"'
+      # Upstream redirects stderr to a temp file that is deleted on exit,
+      # hiding the real error when a build fails. Keep it on the build log.
+      substituteInPlace libs/lib-core.sh \
+        --replace-fail 'exec 2> "''${MACTAHOE_TMP_DIR}/error_log.txt"' ':'
+    '';
+    dontBuild = true;
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/share/themes
+      # install.sh also drops the gnome-theme-switcher helper into
+      # $HOME/.local, which we do not ship. Point HOME at a throwaway dir:
+      # the sandbox HOME (/homeless-shelter) is not writable.
+      export HOME="$(mktemp -d)"
+      # Transparent (normal opacity) + blur variant: the glass look.
+      ./install.sh \
+        --color dark \
+        --opacity normal \
+        --theme default \
+        --scheme standard \
+        --alt normal \
+        --blur \
+        --dest $out/share/themes
+      jdupes --quiet --link-soft --recurse $out/share
+      runHook postInstall
+    '';
+  };
 
-  whiteSurTheme = pkgs.runCommand "workspace-whitesur-dark-solid" { } ''
+  macTahoeTheme = pkgs.runCommand "workspace-mactahoe-dark" { } ''
     mkdir -p "$out"
-    # WhiteSur-Dark-solid contains relative links to shared WhiteSur-Dark
-    # assets. Dereference them so the standalone theme does not contain
+    # MacTahoe-Dark contains relative links to shared MacTahoe assets.
+    # Dereference them so the standalone theme does not contain
     # links to files outside its own Nix store output.
-    cp -RL ${whiteSurGtkTheme}/share/themes/WhiteSur-Dark-solid/. "$out/"
+    cp -RL ${macTahoeGtkTheme}/share/themes/MacTahoe-Dark/. "$out/"
     chmod -R u+w "$out"
     cat >> "$out/gnome-shell/gnome-shell.css" <<'CSS'
 
@@ -56,6 +113,74 @@ let
     #dashtodockContainer #dash .dash-background {
       border-radius: 16px !important;
     }
+
+    /* Ubuntu's Yaru shell stylesheet marks the panel background !important. */
+    #panel {
+      background-color: rgba(0, 0, 0, 0.15) !important;
+    }
+    CSS
+  '';
+
+  # The theme's GTK4 files are not enabled just by setting gtk-theme in dconf.
+  # Build MacTahoe's explicit libadwaita override in the store so it stays
+  # pinned and read-only like the rest of the appearance assets.
+  macTahoeLibadwaita = pkgs.runCommand "workspace-mactahoe-libadwaita" {
+    nativeBuildInputs = with pkgs; [
+      dialog
+      glib
+      jdupes
+      libxml2
+      sassc
+      util-linux
+    ];
+    buildInputs = [ pkgs.gnome-themes-extra ];
+  } ''
+    mkdir -p "$TMPDIR/source" "$TMPDIR/themes" "$out"
+    cp -R ${macTahoeSrc}/. "$TMPDIR/source/"
+    chmod -R u+w "$TMPDIR/source"
+    cd "$TMPDIR/source"
+
+    find -name "*.sh" -print | while IFS= read -r file; do
+      patchShebangs "$file"
+    done
+    substituteInPlace libs/lib-core.sh \
+      --replace-fail 'MY_HOME=$(getent passwd "''${MY_USERNAME}" | cut -d: -f6)' 'MY_HOME=/tmp'
+    substituteInPlace libs/lib-core.sh \
+      --replace-fail 'SUDO_BIN="$(command -v sudo)"' 'SUDO_BIN="false"'
+    # Upstream redirects stderr to a temp file that is deleted on exit,
+    # hiding the real error when a build fails. Keep it on the build log.
+    substituteInPlace libs/lib-core.sh \
+      --replace-fail 'exec 2> "''${MACTAHOE_TMP_DIR}/error_log.txt"' ':'
+
+    HOME="$out" ./install.sh \
+      --dest "$TMPDIR/themes" \
+      --name MacTahoe \
+      --color dark \
+      --opacity normal \
+      --alt normal \
+      --theme default \
+      --scheme standard \
+      --blur \
+      --libadwaita
+
+    rm -rf "$out/.local" "$out/themes"
+
+    # On GNOME 47+ libadwaita (new recoloring API) the theme no longer emits
+    # translucent window colors - its @define-color block is skipped unless
+    # the pre-47 code path runs - so apps fall back to opaque stock Adwaita
+    # and Blur My Shell has nothing translucent to blur behind. Restore the
+    # glass by overriding the named colors with alpha, mirroring the theme's
+    # own blur translucency (~75-80%). Later rules win in user gtk.css.
+    cat >> "$out/.config/gtk-4.0/gtk-Dark.css" <<'CSS'
+
+    /* Translucent libadwaita base for the glass look (repo addition). */
+    @define-color window_bg_color rgba(51, 51, 51, 0.78);
+    @define-color view_bg_color rgba(30, 30, 30, 0.78);
+    @define-color headerbar_bg_color rgba(51, 51, 51, 0.78);
+    @define-color sidebar_bg_color rgba(38, 38, 38, 0.78);
+    @define-color secondary_sidebar_bg_color rgba(30, 30, 30, 0.78);
+    @define-color popover_bg_color rgba(51, 51, 51, 0.88);
+    @define-color dialog_bg_color rgba(51, 51, 51, 0.9);
     CSS
   '';
 
@@ -77,7 +202,7 @@ in
 
   # Agent CLIs (claude, codex, pi) and the Node toolchain stay outside Nix:
   # they self-update with `npm install -g`, which needs a writable prefix.
-  # The WhiteSur themes are delivered through the explicit home.file links below,
+  # The MacTahoe theme is delivered through the explicit home.file links below,
   # not through the profile.
   home.packages =
     with pkgs;
@@ -130,6 +255,10 @@ in
   # GDM reads environment.d at login; shells source the same values from
   # hm-session-vars.sh. The explicit systemd copy also reaches GUI applications.
   systemd.user.sessionVariables = lib.mkIf features.inputMethod inputMethodSessionVariables;
+
+  # GNOME keyring's agent cannot unlock a passphrase key without a GUI prompt,
+  # so SSH fails in Herdr panes and agents. Keys are added once per login with ssh-add.
+  services.ssh-agent.enable = features.developerTools;
 
   programs.git = lib.mkIf features.developerTools {
     enable = true;
@@ -190,7 +319,10 @@ in
       '';
 
       # Appearance assets are pinned to the store, not editable in place.
-      ".themes/WhiteSur-Dark-solid".source = whiteSurTheme;
+      # GTK theme follows MacTahoe (transparent blur variant);
+      # icons and cursors stay on WhiteSur.
+      ".themes/MacTahoe-Dark".source = macTahoeTheme;
+      ".config/gtk-4.0".source = "${macTahoeLibadwaita}/.config/gtk-4.0";
       ".local/share/icons/WhiteSur".source =
         "${pkgs.whitesur-icon-theme}/share/icons/WhiteSur";
       ".local/share/icons/WhiteSur-cursors".source =

@@ -7,7 +7,6 @@ disable = ["node"] # "node" is npm: exclude claude, codex, pi, and -axi globals 
 # Update only these user repositories, not Topgrade's predefined repository list.
 pull_predefined = false
 repos = [
-  "/home/thanhbinh/firstmate",
   "/home/thanhbinh/data/Personal/**/*",
 ]
 # Topgrade 17.9.0 uses git pull --ff-only --recurse-submodules here, never push or force-update.

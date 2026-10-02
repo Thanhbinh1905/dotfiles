@@ -10,15 +10,15 @@ font-family = "FiraCode Nerd Font Mono"
 font-size = 14
 font-thicken = true
 
-background-opacity = 0.85
+background-opacity = 0.75
 
 cursor-style = bar
-cursor-style-blink = false
-cursor-click-to-move = true
+cursor-style-blink = true
 
 window-save-state = always
 shell-integration-features = true
 link-previews = true
-command = zsh -lc 'exec herdr'
 
 gtk-titlebar = false
+link-previews = true
+command = "~/.local/bin/herdr"

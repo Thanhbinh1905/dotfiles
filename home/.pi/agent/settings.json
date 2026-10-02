@@ -4,6 +4,11 @@
   "defaultModel": "gpt-5.6-luna",
   "defaultThinkingLevel": "xhigh",
   "packages": [
-    "npm:pi-web-access"
-  ]
+    "npm:pi-web-access",
+  ],
+  "lastChangelogVersion": "0.99.2",
+  "skills": [
+    "+skills/writing-for-agents/SKILL.md"
+  ],
+  "hideThinkingBlock": false
 }

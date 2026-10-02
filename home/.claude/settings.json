@@ -2,10 +2,49 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "opus",
+  "model": "opus[1m]",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/home/thanhbinh/.local/bin/posse' _guard",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/thanhbinh/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "startup|resume|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/home/thanhbinh/.local/bin/posse' _context",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "bash \"$HOME/.claude/statusline-command.sh\""
+  },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true
   },
   "effortLevel": "medium",
   "modelSettings": {
@@ -13,6 +52,12 @@
       "effortLevel": "medium"
     },
     "claude-sonnet-5": {
+      "effortLevel": "medium"
+    },
+    "claude-opus-4-8": {
+      "effortLevel": "low"
+    },
+    "claude-opus-5-5": {
       "effortLevel": "medium"
     }
   },

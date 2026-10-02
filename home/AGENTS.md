@@ -14,6 +14,20 @@
 - Apply that same high standard to engineering excellence: lint, test failures, and test flakiness. If you see one, even if it is not caused by what you are working on right now, still get it fixed.
 - Before using "dynamic workflows", "ultra code" or any harness feature that immediately spawns a large swarm of subagents, always explain the tradeoffs and ask the user for explicit approval.
 
+## Posse Self-Diagnostics
+
+Posse is part of the system under test.
+
+When using Posse, if you encounter failures, unexpected behavior, missing workflows, or behavior that may originate from Posse:
+
+- Do not silently work around or hide the problem just to complete the task.
+- Distinguish Posse issues from normal task/project or agent failures.
+- Surface concrete evidence: what happened, what was expected, impact, and any workaround used.
+- If possible, include reproduction details or a suspected cause, clearly marked as a hypothesis.
+- Workarounds are allowed when necessary, but must be reported so they do not mask a potential Posse bug.
+
+Real-world usage should help identify and improve Posse itself.
+
 ## Maintaining this file
 
 This is the global policy. Claude, Codex and Pi all read this one file through a symlink,

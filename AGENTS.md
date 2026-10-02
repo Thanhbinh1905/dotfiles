@@ -4,7 +4,7 @@ Home Manager flake for one Linux workstation. The `features` set near the top
 of `home.nix` selects its optional pieces; every feature defaults to `true` so
 the default evaluates to the current workstation:
 
-- **Appearance**, pinned in Nix: WhiteSur GTK/icon/cursor theme, GNOME `dconf`
+- **Appearance**, pinned in Nix: MacTahoe GTK theme with WhiteSur icon/cursor, GNOME `dconf`
   keys, dash-to-dock, fonts, desktop portals, VS Code settings, and the User
   Themes activation.
 - **Vietnamese input**, pinned in Nix: Fcitx5 Lotus, its session variables, and

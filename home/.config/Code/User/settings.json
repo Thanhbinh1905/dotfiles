@@ -10,5 +10,8 @@
   "terminal.integrated.fontLigatures.enabled": true,
   "terminal.integrated.fontSize": 15,
   "workbench.secondarySideBar.defaultVisibility": "hidden",
-  "workbench.startupEditor": "none"
+  "workbench.startupEditor": "none",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.colorTheme": "Dark+",
+  "claudeCode.preferredLocation": "panel"
 }

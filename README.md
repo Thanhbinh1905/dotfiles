@@ -29,7 +29,7 @@ moved something - without building a generation:
 `appearance.nix`. It does two different things.
 
 **Pinned in Nix** - appearance and input method, so a fresh machine looks
-identical: WhiteSur dark theme, icons and cursors, the GNOME User Themes
+identical: MacTahoe dark theme, WhiteSur icons and cursors, the GNOME User Themes
 extension, dash-to-dock geometry, dark colour scheme, Fcitx5 Lotus for
 Vietnamese input, and oh-my-zsh with the dracula prompt. Changing any of it means
 editing `home.nix` or `appearance.nix` and re-running `./bootstrap.sh`.

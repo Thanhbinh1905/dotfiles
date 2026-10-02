@@ -18,6 +18,12 @@ if [[ -n "${HERDR_ENV:-}" ]] && command -v systemctl >/dev/null 2>&1; then
   done < <(systemctl --user show-environment 2>/dev/null)
 fi
 
+# Prefer Home Manager's OpenSSH agent over GNOME keyring's (see home.nix).
+# Keep a forwarded agent.
+if [[ -z "${SSH_CONNECTION:-}" && -S "$XDG_RUNTIME_DIR/ssh-agent" ]]; then
+  export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent"
+fi
+
 if [[ -r "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]]; then
   source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
 fi
@@ -63,3 +69,9 @@ rehash
 
 alias pvent='source .venv/bin/activate'
 alias cc='claude --dangerously-skip-permissions'
+
+# opencode
+export PATH=/home/thanhbinh/.opencode/bin:$PATH
+
+# Enable Claude Code function-hooks (Firstmate calm mode)
+export CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1
