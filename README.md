@@ -39,6 +39,11 @@ editing `home.nix` or `appearance.nix` and re-running `./bootstrap.sh`.
 `./bootstrap.sh --appearance` using Home Manager's own serializer, so the two
 cannot drift.
 
+**Live wallpaper startup** - the optional `liveWallpaper` feature links a GNOME
+autostart entry for Hidamari. Install the system Flatpak separately with
+`flatpak install --system flathub io.github.jeffshee.Hidamari`. The selected video
+and runtime configuration stay in the user's Flatpak data, outside this public repo.
+
 **Symlinked out of the store** - every config file under `home/`, pointed at
 through `~/.dotfiles` with `mkOutOfStoreSymlink`. The file in this repo *is* the
 live config: edit `home/.zshrc` or `home/.config/nvim/` and the change is

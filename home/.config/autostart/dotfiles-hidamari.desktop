@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Hidamari Live Wallpaper
+Comment=Start Hidamari in the background at GNOME login
+Exec=/usr/bin/flatpak run io.github.jeffshee.Hidamari --background
+TryExec=/var/lib/flatpak/exports/bin/io.github.jeffshee.Hidamari
+Icon=io.github.jeffshee.Hidamari
+Terminal=false
+OnlyShowIn=GNOME;
+X-GNOME-Autostart-enabled=true

@@ -12,6 +12,8 @@ the default evaluates to the current workstation:
 - **Config files**, symlinked out of the Nix store with `mkOutOfStoreSymlink`
   through `~/.dotfiles`. Editing a file under `home/` takes effect immediately;
   no rebuild.
+- **Live wallpaper**, an optional GNOME autostart entry for the separately
+  installed Hidamari Flatpak. Its selected video and runtime config stay local.
 
 ## Optional pieces
 
@@ -19,6 +21,7 @@ the default evaluates to the current workstation:
 linked files:
 
 - `gui`: the Appearance piece above.
+- `liveWallpaper`: Hidamari autostart, active only when `gui` is enabled.
 - `inputMethod`: Vietnamese input and `.xinputrc`.
 - `ghostty`: the Ghostty package and config.
 - `herdr`: the Herdr package and config.
@@ -49,6 +52,7 @@ features you do not need.
 - Linking a file the app merely writes preferences back into is fine. Absorb that write by committing the file exactly as the app serializes it - Fcitx5's profile ends with a blank line - and only where the value itself keeps changing by a Git clean filter that drops that one field. `scripts/normalize-pi-settings.py` is the only such filter; deliberate preference edits must stay reviewable.
 - This repository is public. A managed file that needs a secret references it, never contains it: `home/.pi/agent/models.json` resolves the cliproxyapi key at runtime with pi's `!command` syntax from `~/.pi/agent/cliproxyapi.local`, which `bootstrap.sh` seeds. Verify any such mechanism by running the application, not by reasoning about it.
 - Fcitx5 Lotus's user configuration and profile are linked from `home/` so input-method choices stay reviewable. Agent credentials, sessions and caches stay unmanaged because they contain secrets or runtime state.
+- Blur My Shell and dash-to-dock are installed per-user, not through Nix, because they must match the distro's GNOME Shell.
 - Activation must not hard-fail on an absent desktop session. Report and continue.
 - Never commit credentials, tokens, account databases, runtime state, or package caches.
 - Never manually modify generated lockfiles or generated changelogs. Update them only through their owning tool.

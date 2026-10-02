@@ -9,6 +9,7 @@ let
   # current machine; set a feature to false for a leaner setup.
   features = {
     gui = true;
+    liveWallpaper = true;
     inputMethod = true;
     ghostty = true;
     herdr = true;
@@ -254,6 +255,12 @@ in
 
   # GDM reads environment.d at login; shells source the same values from
   # hm-session-vars.sh. The explicit systemd copy also reaches GUI applications.
+  #
+  # Nothing else belongs here yet. Nix GStreamer is deliberately absent: a Nix
+  # typelib embeds an absolute /nix/store path for its library, so GJS dlopens
+  # the Nix library next to the distro one already loaded in the same process.
+  # That double-registers GStreamer types (GstStreamVolume) and aborts the
+  # renderer. See AGENTS.md.
   systemd.user.sessionVariables = lib.mkIf features.inputMethod inputMethodSessionVariables;
 
   # GNOME keyring's agent cannot unlock a passphrase key without a GUI prompt,
@@ -303,6 +310,12 @@ in
     }
     // lib.optionalAttrs features.herdr {
       ".config/herdr/config.toml".source = link "home/.config/herdr/config.toml";
+    }
+    // lib.optionalAttrs (features.gui && features.liveWallpaper) {
+      # Hidamari is installed separately as a Flatpak. Its selected video and
+      # runtime config stay app-owned; this only starts it at GNOME login.
+      ".config/autostart/dotfiles-hidamari.desktop".source =
+        link "home/.config/autostart/dotfiles-hidamari.desktop";
     }
     // lib.optionalAttrs features.developerTools {
       ".config/nvim".source = link "home/.config/nvim";

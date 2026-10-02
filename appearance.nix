@@ -35,7 +35,7 @@
   "org/gnome/shell".enabled-extensions = [
     "blur-my-shell@aunetx"
     "dash-to-dock@micxgx.gmail.com"
-    "hanabi-extension@jeffshee.github.io"
+    "topbar-all-monitors@fa8i.github.io"
     # Tray icon host: without it Fcitx5 Lotus has nowhere to draw.
     "ubuntu-appindicators@ubuntu.com"
     "user-theme@gnome-shell-extensions.gcampax.github.com"
@@ -59,12 +59,6 @@
     preview-size-scale = 0.36;
     show-windows-preview = true;
     transparency-mode = "DEFAULT";
-  };
-
-  # Hanabi video wallpaper (installed per-user, see above for why it is not Nix).
-  "io/github/jeffshee/hanabi-extension" = {
-    mute = true;
-    video-path = "/home/thanhbinh/data/Downloads/blossom-of-the-blue-realm.mp4";
   };
 
   "org/gnome/shell/extensions/user-theme".name = "MacTahoe-Dark";
