@@ -91,5 +91,9 @@
       "**Org-specific CLIs**: None configured",
       "routine under /data/Personal/dotfiles/ prefix qualifiers: none configured beyond the trusted repo itself"
     ]
+  },
+  "attribution": {
+    "commit": "",
+    "pr": ""
   }
 }
