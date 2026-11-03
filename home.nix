@@ -19,13 +19,15 @@ let
   };
 
   userThemeExtension = "user-theme@gnome-shell-extensions.gcampax.github.com";
-  # Lotus's Ubuntu + GNOME + X11 guide requires these session variables.
   inputMethodSessionVariables = {
     GLFW_IM_MODULE = "ibus";
-    GTK_IM_MODULE = "fcitx";
-    QT_IM_MODULE = "fcitx";
-    SDL_IM_MODULE = "fcitx";
-    XMODIFIERS = "@im=fcitx";
+    QT_IM_MODULE = "ibus";
+    SDL_IM_MODULE = "ibus";
+    XMODIFIERS = "@im=ibus";
+    IBUS_COMPONENT_PATH = "${config.home.homeDirectory}/.local/share/ibus/component:${pkgs.ibus}/share/ibus/component";
+    # Sandboxed Qt apps such as the Telegram snap cannot access IBus's private
+    # D-Bus socket. Use the restricted IBus portal on the session bus instead.
+    IBUS_USE_PORTAL = "1";
   };
 
   # MacTahoe detects the Shell version while building. The Nix sandbox has no
@@ -218,6 +220,10 @@ in
       gh
     ])
     ++ lib.optionals features.ghostty [ ghostty ]
+    ++ lib.optionals features.inputMethod [
+      ibus
+      ibus-engines.bamboo
+    ]
     ++ lib.optionals features.developerTools [
       glab
       go
@@ -229,7 +235,7 @@ in
       lazygit
       neovim
     ]
-    ++ lib.optionals features.gui [ nerd-fonts.fira-code ]
+    ++ lib.optionals features.gui [ nerd-fonts.fira-code telegram-desktop ]
     ++ lib.optionals features.developerTools [
       pyenv
       python3
@@ -244,25 +250,41 @@ in
 
   fonts.fontconfig.enable = features.gui;
 
-  i18n.inputMethod = lib.mkIf features.inputMethod {
-    enable = true;
-    type = "fcitx5";
-    fcitx5 = {
-      addons = [ pkgs.fcitx5-lotus ];
-      sessionVariables = inputMethodSessionVariables;
+  home.sessionVariables = lib.mkIf features.inputMethod inputMethodSessionVariables;
+  systemd.user.sessionVariables = lib.mkIf features.inputMethod inputMethodSessionVariables;
+
+  # GNOME Shell only connects to IBus when this exact unit name exists;
+  # otherwise it tries to spawn ibus-daemon from its own PATH, which has no Nix
+  # profile. Mirrors upstream's unit, but always passes --xim because the distro
+  # Xwayland hook points at the removed /usr/libexec/ibus-x11. Starting after
+  # gnome-session-initialized guarantees WAYLAND_DISPLAY is set, so the daemon
+  # writes the bus address file that Wayland clients and GNOME Shell read.
+  systemd.user.services."org.freedesktop.IBus.session.GNOME" = lib.mkIf features.inputMethod {
+    Unit = {
+      Description = "IBus Daemon for GNOME";
+      CollectMode = "inactive-or-failed";
+      Requisite = [ "gnome-session-initialized.target" ];
+      After = [ "gnome-session-initialized.target" ];
+      PartOf = [ "gnome-session-initialized.target" ];
+      Before = [ "gnome-session.target" ];
     };
+    Service = {
+      Type = "dbus";
+      BusName = "org.freedesktop.IBus";
+      ExecStart = "${pkgs.ibus}/bin/ibus-daemon --panel disable --xim --cache=refresh";
+      Environment = lib.mapAttrsToList (name: value: "${name}=${value}") inputMethodSessionVariables;
+      Restart = "on-abnormal";
+      TimeoutStopSec = 5;
+      Slice = "session.slice";
+    };
+    Install.WantedBy = [ "gnome-session.target" ];
   };
 
-  # GDM reads environment.d at login; shells source the same values from
-  # hm-session-vars.sh. The explicit systemd copy also reaches GUI applications.
-  #
   # Nothing else belongs here yet. Nix GStreamer is deliberately absent: a Nix
   # typelib embeds an absolute /nix/store path for its library, so GJS dlopens
   # the Nix library next to the distro one already loaded in the same process.
   # That double-registers GStreamer types (GstStreamVolume) and aborts the
   # renderer. See AGENTS.md.
-  systemd.user.sessionVariables = lib.mkIf features.inputMethod inputMethodSessionVariables;
-
   # GNOME keyring's agent cannot unlock a passphrase key without a GUI prompt,
   # so SSH fails in Herdr panes and agents. Keys are added once per login with ssh-add.
   services.ssh-agent.enable = features.developerTools;
@@ -285,11 +307,13 @@ in
       ".oh-my-zsh".source = ohMyZsh;
     }
     // lib.optionalAttrs features.inputMethod {
-      ".xinputrc".source = link "home/.xinputrc";
-      ".config/fcitx5/config".source = link "home/.config/fcitx5/config";
-      ".config/fcitx5/profile".source = link "home/.config/fcitx5/profile";
-      ".config/fcitx5/conf/lotus.conf".source = link "home/.config/fcitx5/conf/lotus.conf";
-      ".config/fcitx5/conf/lotus-app-rules.conf".source = link "home/.config/fcitx5/conf/lotus-app-rules.conf";
+      ".local/share/ibus/component/bamboo.xml".source =
+        "${pkgs.ibus-engines.bamboo}/share/ibus/component/bamboo.xml";
+      ".local/share/ibus-bamboo".source =
+        "${pkgs.ibus-engines.bamboo}/share/ibus-bamboo";
+      # D-Bus activates this service for sandboxed clients using IBUS_USE_PORTAL.
+      ".local/share/dbus-1/services/org.freedesktop.portal.IBus.service".source =
+        "${pkgs.ibus}/share/dbus-1/services/org.freedesktop.portal.IBus.service";
     }
     // lib.optionalAttrs features.agentConfigs {
       # One global policy, read by all three agents. ~/.claude/CLAUDE.md cannot use
