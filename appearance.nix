@@ -17,15 +17,16 @@
     icon-theme = "WhiteSur";
   };
 
-  # Fcitx5 owns the Vietnamese input method. GNOME only needs the US layout.
   "org/gnome/desktop/input-sources".sources = map hmLib.gvariant.mkTuple [
+    [ "ibus" "Bamboo" ]
     [ "xkb" "us" ]
   ];
 
-  # Leave Super+space and Shift+Super+space for Fcitx5.
-  "org/gnome/desktop/wm/keybindings" = {
-    switch-input-source = [ ];
-    switch-input-source-backward = [ ];
+  "desktop/ibus/general" = {
+    enable-by-default = true;
+    engines-order = [ "Bamboo" ];
+    preload-engines = [ "Bamboo" ];
+    use-global-engine = true;
   };
 
   # Right-side floating dock. Transparency follows the Shell theme (glass)
@@ -36,7 +37,6 @@
     "blur-my-shell@aunetx"
     "dash-to-dock@micxgx.gmail.com"
     "topbar-all-monitors@fa8i.github.io"
-    # Tray icon host: without it Fcitx5 Lotus has nowhere to draw.
     "ubuntu-appindicators@ubuntu.com"
     "user-theme@gnome-shell-extensions.gcampax.github.com"
   ];

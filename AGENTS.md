@@ -5,10 +5,10 @@ of `home.nix` selects its optional pieces; every feature defaults to `true` so
 the default evaluates to the current workstation:
 
 - **Appearance**, pinned in Nix: MacTahoe GTK theme with WhiteSur icon/cursor, GNOME `dconf`
-  keys, dash-to-dock, fonts, desktop portals, VS Code settings, and the User
-  Themes activation.
-- **Vietnamese input**, pinned in Nix: Fcitx5 Lotus, its session variables, and
-  the linked Fcitx5 configuration.
+  keys, dash-to-dock, fonts, desktop portals, VS Code settings, the User Themes
+  activation, and native Telegram.
+- **Vietnamese input**, pinned in Nix: IBus Bamboo, its session variables, and
+  the linked engine files.
 - **Config files**, symlinked out of the Nix store with `mkOutOfStoreSymlink`
   through `~/.dotfiles`. Editing a file under `home/` takes effect immediately;
   no rebuild.
@@ -20,9 +20,10 @@ the default evaluates to the current workstation:
 `home.nix` is the single selection point. Each feature controls its packages and
 linked files:
 
-- `gui`: the Appearance piece above.
+- `gui`: the Appearance piece above, including native Telegram. The separate
+  Telegram Snap stays unmanaged.
 - `liveWallpaper`: Hidamari autostart, active only when `gui` is enabled.
-- `inputMethod`: Vietnamese input and `.xinputrc`.
+- `inputMethod`: IBus Bamboo and its engine files.
 - `ghostty`: the Ghostty package and config.
 - `herdr`: the Herdr package and config.
 - `shell`: zsh, the vendored dracula oh-my-zsh bundle, and `.zshrc`.
@@ -49,9 +50,8 @@ features you do not need.
   `diff <(rendered keyfile from packages.appearance) <(the generation's hm-dconf.ini)` - they must be byte-identical.
 - One global agent policy: `home/AGENTS.md`, linked to `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` and `~/.pi/agent/AGENTS.md`. Keep it project-agnostic. Do not use Claude's `@AGENTS.md` import for it - inside `~/.claude/CLAUDE.md` that resolves to `~/.claude/AGENTS.md`, which nothing creates.
 - Do not link a file the app writes trust decisions or credentials into. `~/.codex/config.toml` is the case in point: codex stores project `trust_level` entries, `[mcp_servers]` and hook hashes there, so linking it both wipes them on switch and would commit a machine-specific trust list. It stays unmanaged.
-- Linking a file the app merely writes preferences back into is fine. Absorb that write by committing the file exactly as the app serializes it - Fcitx5's profile ends with a blank line - and only where the value itself keeps changing by a Git clean filter that drops that one field. `scripts/normalize-pi-settings.py` is the only such filter; deliberate preference edits must stay reviewable.
+- Linking a file the app merely writes preferences back into is fine. For runtime fields that keep changing, use a Git clean filter to drop only that field. `scripts/normalize-pi-settings.py` is the only such filter; deliberate preference edits must stay reviewable.
 - This repository is public. A managed file that needs a secret references it, never contains it: `home/.pi/agent/models.json` resolves the cliproxyapi key at runtime with pi's `!command` syntax from `~/.pi/agent/cliproxyapi.local`, which `bootstrap.sh` seeds. Verify any such mechanism by running the application, not by reasoning about it.
-- Fcitx5 Lotus's user configuration and profile are linked from `home/` so input-method choices stay reviewable. Agent credentials, sessions and caches stay unmanaged because they contain secrets or runtime state.
 - Blur My Shell and dash-to-dock are installed per-user, not through Nix, because they must match the distro's GNOME Shell.
 - Activation must not hard-fail on an absent desktop session. Report and continue.
 - Never commit credentials, tokens, account databases, runtime state, or package caches.

@@ -1,7 +1,7 @@
 # Global agent instructions
 
 - Never use the em dash character. Use plain dash "-" instead
-- When writing commit messages, NEVER auto-add your agent name as co-author
+- Never add agent attribution (co-author trailers, "Generated with ..." lines) to commit messages, PR/MR descriptions or comments
 - Never manually modify CHANGELOG.md files or any files that are marked as auto-generated
 - Cut any clause that does not change the reader's understanding.
   This includes redundant qualifiers that restate what the sentence already implies, such as "at your option" following "either A or B". Keep documentation concise and free of context bloat.

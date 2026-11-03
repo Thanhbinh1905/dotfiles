@@ -28,11 +28,10 @@ moved something - without building a generation:
 `home.nix` is the whole configuration, with the `dconf` keys split into
 `appearance.nix`. It does two different things.
 
-**Pinned in Nix** - appearance and input method, so a fresh machine looks
-identical: MacTahoe dark theme, WhiteSur icons and cursors, the GNOME User Themes
-extension, dash-to-dock geometry, dark colour scheme, Fcitx5 Lotus for
-Vietnamese input, and oh-my-zsh with the dracula prompt. Changing any of it means
-editing `home.nix` or `appearance.nix` and re-running `./bootstrap.sh`.
+Nix manages the desktop appearance, native Telegram, and Vietnamese input:
+MacTahoe dark theme, WhiteSur icons and cursors, the GNOME User Themes extension,
+dash-to-dock geometry, dark colour scheme, IBus Bamboo, and oh-my-zsh with the
+dracula prompt. Change `home.nix` or `appearance.nix`, then run `./bootstrap.sh`.
 
 `appearance.nix` holds every `dconf` key exactly once. `home.nix` feeds it to
 `dconf.settings`, and `flake.nix` renders the same attrset into the standalone
@@ -49,8 +48,20 @@ through `~/.dotfiles` with `mkOutOfStoreSymlink`. The file in this repo *is* the
 live config: edit `home/.zshrc` or `home/.config/nvim/` and the change is
 already in effect. No rebuild.
 
-Managed this way: zsh, Fcitx5's input-method profile, ghostty, neovim, herdr,
-VS Code `settings.json`, and the agent settings for Claude and Pi.
+Managed this way: zsh, ghostty, neovim, herdr, VS Code `settings.json`, and the
+agent settings for Claude and Pi.
+
+### Telegram and IBus
+
+The `gui` feature installs native Telegram from Nix. It does not remove the
+Telegram Snap, change its data, or alter its AppArmor policy. After merging this
+configuration, run `./bootstrap.sh` and launch the native Telegram package to
+sign in and test Vietnamese typing. Signing in is required for that test.
+
+Ubuntu may retain `/etc/xdg/Xwayland-session.d/10-ibus-x11` after the apt IBus
+package was removed. If the hook remains, remove the registered package
+manually with `sudo dpkg --purge ibus`. Home Manager does not run privileged
+cleanup.
 
 ### Pi's proxy provider
 
@@ -72,12 +83,8 @@ only manual step, and only on a machine that has never had one.
 
 ### Application-owned runtime state
 
-Two managed files are also written by their own applications, through the
-symlink and straight into this working tree.
-
-Fcitx5 rewrites `home/.config/fcitx5/profile` in its own serialization, which
-ends with a blank line. The file is committed exactly that way, so a rewrite is
-byte-identical and there is nothing to absorb.
+One managed file is also written by its own application, through the symlink
+and straight into this working tree.
 
 Pi records the changelog version it has shown into `home/.pi/agent/settings.json`.
 That value changes with every Pi release, so `./bootstrap.sh` installs a local
@@ -109,13 +116,6 @@ Check what would run, then run the updates:
 topgrade --dry-run
 topgrade
 ```
-
-### Lotus host integration
-
-Home Manager installs and starts Fcitx5 Lotus. Ubuntu still needs distro-native
-GTK/Qt frontend modules and the system-level Lotus uinput server. Follow
-[`docs/lotus-installation.md`](docs/lotus-installation.md) once per machine, then
-log out and back in.
 
 ### The global agent policy
 
