@@ -75,3 +75,7 @@ export PATH=/home/thanhbinh/.opencode/bin:$PATH
 
 # Enable Claude Code function-hooks (Firstmate calm mode)
 export CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1
+
+# >>> Codex installer >>>
+export PATH="/home/thanhbinh/.local/bin:$PATH"
+# <<< Codex installer <<<

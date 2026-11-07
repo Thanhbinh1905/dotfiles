@@ -76,3 +76,9 @@ enabled = false
 
 [ui.toast]
 delivery = "herdr"
+
+[ui.sidebar.agents]
+rows = [
+  ["state_icon", "machine", { token = "workspace", rules = [{ starts_with = "Lead:", hide = true }] }, { token = "$posse_row", bold = true, dim = false }],
+  ["agent"],
+]
